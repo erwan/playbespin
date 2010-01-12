@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title>#{get 'title' /}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/css/main.css'}" />
+        <link rel="stylesheet" type="text/css" media="screen" href="@{'/public/css/BespinEmbedded.css'}" />
+        <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}" />
+        <script src="@{'/public/js/BespinEmbedded.js'}"></script>
+        <script src="/public/javascripts/jquery-1.3.2.min.js"></script>
+        <script src="@{'/public/jtree/jquery.tree.min.js'}"></script>
+    </head>
+    <body>
+
+<script>
+    jQuery.noConflict();
+
+    var editor;
+    window.onBespinLoad = function() {
+        bespin = document.getElementById("editor").bespin;
+    }
+    jQuery(document).ready(function() {
+        jQuery("#foldertree").tree({
+            data : { 
+                type : "json",
+                opts : {
+                    static : [${jsonTree.raw()}]
+                }
+            },
+            types : {
+                // all node types inherit the "default" node type
+                "default" : {
+                    deletable : false,
+                    renameable : false
+                },
+                "root" : {
+                    icon : {
+                        image : "@{'/public/jtree/demo/drive.png'}"
+                    }
+                },
+                "file" : {
+                    icon : { 
+                        image : "@{'/public/jtree/demo/file.png'}"
+                    }
+                }
+            }
+        });
+        jQuery("#savebutton").click(function(){
+            jQuery.post("@{save()}",
+                        {
+                            path: "${path}",
+                            content: _editorComponent.getContent()
+                        });
+        });
+    });
+</script>
+
+<p>File: ${path}<br/>
+<a href="#" id="savebutton">Save</a>
+
+</p>
+
+<div id="foldertree"></div>
+
+<div id="editor" class="bespin" data-bespinoptions='{ "settings": { "strictlines": true }, "stealFocus": true }'>${content}
+</div>

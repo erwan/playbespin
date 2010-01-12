@@ -1,0 +1,15 @@
+.bespin-editor {
+    border: 10px solid #ddd;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+
+#editor {
+    height: 500px;
+    width: 800px;
+}
+
+#foldertree {
+    float: right;
+    width: 300px;
+}
