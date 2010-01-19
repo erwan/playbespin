@@ -3,7 +3,9 @@ package play.modules.bespin;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import play.Play;
 import play.PlayPlugin;
@@ -20,34 +22,51 @@ public class BespinPlugin extends PlayPlugin {
 			if(request.path.equals("/bespin")) {
 				response.status = 302;
 				response.out.write("/bespin/public/index.html".getBytes("utf-8"));
+				return true;
 			}
 			// -- Static files (/bespin/public)
 			if(request.path.startsWith("/bespin/public/")) {
 				String path = request.path.substring("/bespin/public".length());
 				return servePublic(request, response, path);
 			}
-			// -- /bespin/file/list
-			if(request.path.startsWith("/bespin/file/list/")) {
-				String root = request.path.substring("/bespin/file/list".length());
-				List<File> fileList = Arrays.asList(Play.getFile(root).listFiles());
-				response.status = 200;
-				response.out.write(list(fileList).getBytes("utf-8"));
-				return true;
-			}
-			// -- /bespin/register/listopen
-			if(request.path.equals("/bespin/file/listopen/")) {
-				response.status = 200;
-				response.out.write("{}".getBytes("utf-8"));
-				return true;
-			}
-			// -- /bespin/register/listopen
+			// -- /bespin/file/at
 			if(request.path.startsWith("/bespin/file/at/")) {
 				File file = Play.getFile(request.path.substring("/bespin/file/at".length()));
 				return serveStatic(request, response, file);
 			}
+			if(request.path.startsWith("/bespin/save/")) {
+				File file = Play.getFile(request.path.substring("/bespin/save".length()));
+				InputStream content = request.body;
+				save(content, file);
+				return true;
+			}
 			return false;
 		} catch(Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public void save(InputStream is, File target) {
+		FileOutputStream os;
+		try {
+			os = new FileOutputStream(target);
+		} catch (FileNotFoundException e) {
+			// TODO create the file
+			e.printStackTrace();
+			return;
+		}
+
+		int c;
+		try {
+			while ((c = is.read()) != -1) {
+				os.write(c);
+			}
+			is.close();
+			os.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
 		}
 	}
 

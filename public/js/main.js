@@ -20,7 +20,9 @@ PlayIDE.setFile = function() {
 }
 
 PlayIDE.save = function() {
-    alert("TODO");
+    jQuery.post(
+        "/bespin/save" + PlayIDE.currentFile,
+        bespin.getContent());
 }
 
 PlayIDE.load = function() {
