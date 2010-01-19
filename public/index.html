@@ -8,11 +8,13 @@
         <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/css/main.css" />
         <link rel="shortcut icon" type="image/png" href="/bespin/public/images/favicon.png" />
         <script src="/bespin/public/js/jquery-1.4.min.js"></script>
+        <script src="/bespin/public/js/jquery.simplemodal-1.3.3.min.js"></script>
         <script src="/bespin/public/js/BespinEmbedded.compressed.js"></script>
         <script src="/bespin/public/js/main.js"></script>
     </head>
     <body>
 
+<div id="header">
 <h1>Play IDE</h1>
 
 <div id="filename"></div>
@@ -20,6 +22,7 @@
 <div id="toolbar">
     <span id="save-button" class="button"> Save </span>
     <span id="load-button" class="button"> Load </span>
+</div>
 </div>
 
 <div id="editor" class="bespin" data-bespinoptions='{ "settings": { "strictlines": true }, "stealFocus": true }'>
@@ -30,6 +33,9 @@ function editMe() {
 }
 </div>
 
+<div id="loadpopup" style="display: none;">
+    Load!
+</div>
 
 <script>
     jQuery.noConflict(); // Bespin includes Dojo so we have to do that
@@ -45,7 +51,8 @@ function editMe() {
     });
 
     jQuery("#load-button").click(function() {
-        PlayIDE.load();
+        // PlayIDE.load();
+        jQuery("#loadpopup").modal();
     });
 
 </script>

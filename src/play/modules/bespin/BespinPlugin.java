@@ -2,6 +2,7 @@ package play.modules.bespin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -72,12 +73,30 @@ public class BespinPlugin extends PlayPlugin {
 
 	private boolean servePublic(Request request, Response response, String path) throws Exception {
 		String fullPath = getBespinFolder().getPath() + File.separator + "public" + path;
+		boolean binary = false;
 		if (path.endsWith(".html") || path.endsWith(".htm")) {
 			response.contentType = "text/html; charset=utf8";
 		} else if (path.endsWith(".css")) {
 			response.contentType = "text/css; charset=utf8";
+		} else if (path.endsWith(".png")) {
+			response.contentType = "image/png";
+			binary = true;
 		}
-		return serveStatic(request, response, new File(fullPath));
+		if (binary)
+			return serveBinary(request, response, new File(fullPath));
+		else
+			return serveStatic(request, response, new File(fullPath));
+	}
+
+	private boolean serveBinary(Request request, Response response, File file) throws Exception {
+		FileInputStream is = new FileInputStream(file);
+		byte[] buffer = new byte[8092];
+		int count = 0;
+		while ((count = is.read(buffer)) > 0) {
+			response.out.write(buffer, 0, count);
+		}
+		is.close();
+		return true;
 	}
 
 	private boolean serveStatic(Request request, Response response, File file) throws Exception {
