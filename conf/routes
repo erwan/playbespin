@@ -1,5 +1,0 @@
-# Routes for the Bespin module
-# ~~~~~~~~~~~
-
-GET     /                           Bespin.index
-GET     /edit/{<[\w.\/]+>path}      Bespin.edit
