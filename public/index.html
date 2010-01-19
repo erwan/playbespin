@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Play IDE</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/css/BespinEmbedded.compressed.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/css/main.css" />
+        <link rel="shortcut icon" type="image/png" href="/bespin/public/images/favicon.png" />
+        <script src="/bespin/public/js/jquery-1.4.min.js"></script>
+        <script src="/bespin/public/js/BespinEmbedded.compressed.js"></script>
+        <script src="/bespin/public/js/main.js"></script>
+    </head>
+    <body>
+
+<h1>Play IDE</h1>
+
+<div id="filename"></div>
+<!-- p>File: ${path}<br/>
+<a href="#" id="savebutton">Save</a>
+</p>
+
+<div id="foldertree"></div -->
+
+<div id="editor" class="bespin" data-bespinoptions='{ "settings": { "strictlines": true }, "stealFocus": true }'>
+// Welcome in Play IDE.
+var thisCode = "what shows up in the editor";
+function editMe() {
+ alert("and have fun!");
+}
+</div>
+
+
+<script>
+    jQuery.noConflict(); // Bespin includes Dojo so we have to do that
+
+    var editor;
+    window.onBespinLoad = function() {
+        bespin = document.getElementById("editor").bespin;
+        PlayIDE.init();
+    }
+
+</script>
+
+    </body>
+    
+</html>

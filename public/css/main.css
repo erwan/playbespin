@@ -1,9 +1,15 @@
-.bespin-editor {
-    border: 10px solid #ddd;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
+
+.bespin { margin: 0; padding: 0; border: 0; height: 300px; border: 10px solid #ddd; -moz-border-radius: 10px; -webkit-border-radius: 10px; }
+
+body {
+    color: white;
 }
 
+h1 {
+    font-style: italic;
+}
+
+/*
 #editor {
     height: 500px;
     width: 800px;
@@ -13,3 +19,4 @@
     float: right;
     width: 300px;
 }
+*/
