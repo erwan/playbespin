@@ -18,3 +18,11 @@ PlayIDE.setFile = function() {
         }
     );
 }
+
+PlayIDE.save = function() {
+    alert("TODO");
+}
+
+PlayIDE.load = function() {
+    alert("TODO");
+}
