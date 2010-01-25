@@ -49,6 +49,10 @@ h1 {
     background-color:#333; border:8px solid #444; padding:12px;
 }
 
+#simplemodal-container ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
 
 #simplemodal-container a.modalCloseImg {
     background:url(/bespin/public/images/x.png) no-repeat;
@@ -63,8 +67,6 @@ h1 {
 }
 
 
-/*
-#editor {
-    height: 500px;
+.tree li a, .tree li span {
+    color: white !important;
 }
-*/

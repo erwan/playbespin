@@ -26,5 +26,5 @@ PlayIDE.save = function() {
 }
 
 PlayIDE.load = function() {
-    alert("TODO");
+    jQuery("#loadfiles").modal();
 }

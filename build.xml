@@ -5,8 +5,9 @@
     <path id="project.classpath">
         <pathelement path="/home/erwan/Devel/Play/play-1.0/framework/classes"/>
         <fileset dir="/home/erwan/Devel/Play/play-1.0/framework/lib">
-            <include name="*.jar"/>                        
-        </fileset>        
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="lib/lambdaj-2.1-with-dependencies.jar"/>
     </path>
     
     <target name="build">
