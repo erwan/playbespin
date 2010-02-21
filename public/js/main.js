@@ -1,4 +1,5 @@
-var PlayIDE = {}
+var PlayIDE = {
+}
 
 PlayIDE.currentFile = null;
 
@@ -14,7 +15,7 @@ PlayIDE.setFile = function() {
         "/bespin/file/at/" + PlayIDE.currentFile,
         null,
         function(data, textStatus) {
-            bespin.setContent(data);
+            bespin.value = data;
         }
     );
 }
@@ -22,9 +23,10 @@ PlayIDE.setFile = function() {
 PlayIDE.save = function() {
     jQuery.post(
         "/bespin/save" + PlayIDE.currentFile,
-        bespin.getContent());
+        bespin.value);
 }
 
 PlayIDE.load = function() {
     jQuery("#loadfiles").modal();
 }
+
