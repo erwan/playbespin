@@ -17,6 +17,8 @@
     </head>
     <body>
 
+<div id="main">
+
 <div id="header">
 <h1>Play IDE</h1>
 
@@ -38,6 +40,8 @@ function editMe() {
 }
 </div>
 
+</div>
+
 <div id="loadpopup" style="display: none;">
     <div id="loadfiles"></div>
 </div>
@@ -45,7 +49,8 @@ function editMe() {
 <script>
     jQuery.noConflict(); // Bespin includes Dojo so we have to do that
 
-    jQuery(function () {
+    jQuery(document).ready(function () {
+
         jQuery("#loadfiles").tree({
             types: {
                // all node types inherit the "default" node type
@@ -73,9 +78,9 @@ function editMe() {
         });
     });
 
-    var editor;
     window.onBespinLoad = function() {
-        bespin = document.getElementById("editor").bespin;
+        var editor = document.getElementById("editor");
+        bespin = editor.bespin;
         PlayIDE.init();
     }
 
@@ -90,5 +95,5 @@ function editMe() {
 </script>
 
     </body>
-    
+
 </html>

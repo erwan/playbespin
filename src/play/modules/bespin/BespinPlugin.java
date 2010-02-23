@@ -28,9 +28,9 @@ public class BespinPlugin extends PlayPlugin {
 	public boolean rawInvocation(Request request, Response response) {
 		try {
 			// -- /bespin
-			if (request.path.equals("/bespin")) {
+			if (request.path.equals("/bespin") || request.path.equals("/bespin/")) {
 				response.status = 302;
-				response.out.write("/bespin/public/index.html".getBytes("utf-8"));
+				response.setHeader("Location", "/bespin/public/index.html");
 				return true;
 			}
 			// -- Static files (/bespin/public)
