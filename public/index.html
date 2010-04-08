@@ -32,7 +32,7 @@
 
 <div id="editor"
      class="bespin"
-     data-bespinoptions='{ "settings": { "strictlines": true }, "syntax": "html", "stealFocus": true }'>
+     data-bespinoptions='{ "settings": { "tabstop": 4 }, "syntax": "js", "stealFocus": true }'>
 // Welcome in Play IDE.
 var thisCode = "what shows up in the editor";
 function editMe() {
@@ -73,6 +73,19 @@ function editMe() {
                 type: "json",
                 opts: {
                     url : "/bespin/list/"
+                }
+            },
+            callback: {
+                onload: function() {
+                    jQuery("li[rel='folder'] > a").click(function (e) {
+                        e.preventDefault();
+                    });
+                    jQuery("li[rel='file']").each(function (i) {
+                        var li = jQuery(this);
+                        li.find("a").each(function (j) {
+                            jQuery(this).attr("href", li.attr("href"));
+                       });
+                    });
                 }
             }
         });

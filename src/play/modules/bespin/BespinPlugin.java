@@ -90,7 +90,7 @@ public class BespinPlugin extends PlayPlugin {
 
 	private boolean servePublic(Request request, Response response, String path) throws Exception {
 		String fullPath = getBespinFolder().getPath() + File.separator + "public" + path;
-boolean binary = false;
+		boolean binary = false;
 		if (path.endsWith(".html") || path.endsWith(".htm")) {
 			response.contentType = "text/html; charset=utf8";
 		} else if (path.endsWith(".css")) {
@@ -140,6 +140,13 @@ boolean binary = false;
 		return Play.modules.get("bespin").getRealFile();
 	}
 
+	private static String getRelativePath(File file) {
+		if (file == null || file.equals(Play.getFile(""))) {
+			return "";
+		}
+		return getRelativePath(file.getParentFile()) + "/" + file.getName();
+	}
+
 	private static String list(List<File> list) {
 
 		class FileMatcher extends TypeSafeMatcher<File> {
@@ -166,7 +173,7 @@ boolean binary = false;
 							+ "}";
 				} else {
 					return "{\"data\": \"" + file.getName() + "\","
-							+ "\"attributes\": {\"rel\": \"file\"}"
+							+ "\"attributes\": {\"rel\": \"file\", \"href\": \"#" + getRelativePath(file) + "\"}"
 							+ "}";
 				}
 			}
