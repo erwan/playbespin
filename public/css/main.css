@@ -9,7 +9,13 @@
 
 .bespin {
     margin: 0; padding: 0; border: 0;
-    height: 400px;
+    position: fixed;
+    top: 15px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto !important;
+    height: auto !important;
     display: block;
 }
 
@@ -41,6 +47,13 @@ h1 {
     top: 3px;
     right: 20px;
     width: 200px;
+}
+
+#filename {
+    float: right;
+    position: absolute;
+    left: 100px;
+    top: 5px;
 }
 
 .button {

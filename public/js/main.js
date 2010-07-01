@@ -5,9 +5,29 @@ PlayIDE.currentFile = null;
 
 PlayIDE.init = function() {
     var splitted = window.location.toString().split("#");
-    if (splitted.length > 1) PlayIDE.currentFile = splitted[1];
-    PlayIDE.setFile();
+    if (splitted.length > 1) {
+        PlayIDE.setFromHash(splitted[1]);
+    }
     PlayIDE.startHashInterval();
+}
+
+PlayIDE.setFromHash = function(hash) {
+    var filename = hash;
+    var line = 1;
+    if (hash.indexOf(serverConfig.rootUrl) > -1) {
+        document.location = (""+document.location).split("#")[0] + "#" + hash.split(serverConfig.rootUrl)[1];
+        return;
+    }
+    if (filename.indexOf("|") > -1) {
+        var splitted = filename.split("|");
+        filename = splitted[0];
+        try {
+            line = parseInt(splitted[1], 10);
+        } catch(ex) { /* bad number, keep line 1 */}
+    }
+    PlayIDE.currentFile = filename;
+    PlayIDE.currentLine = line;
+    PlayIDE.setFile();
 }
 
 PlayIDE.setFile = function() {
@@ -16,37 +36,43 @@ PlayIDE.setFile = function() {
         "/bespin/file/at/" + PlayIDE.currentFile,
         null,
         function(data, textStatus) {
-            bespin.value = data;
+            bespin.editor.value = data;
+            bespin.editor.setLineNumber(PlayIDE.currentLine);
             PlayIDE.setSyntax(PlayIDE.currentFile);
         }
     );
 }
 
 PlayIDE.setSyntax = function(filename) {
-    bespin.setSyntax(filename.split(".").pop());
+    // bespin.editor.syntax = (filename.split(".").pop());
 }
 
 PlayIDE.save = function() {
     jQuery.post(
         "/bespin/save" + PlayIDE.currentFile,
-        bespin.value);
+        bespin.editor.value);
 }
 
 PlayIDE.load = function() {
     jQuery("#loadfiles").modal();
 }
 
+PlayIDE.locationHashChanged = function() {
+    var anchor = document.location.hash.slice(1);
+    PlayIDE.currentAnchor = anchor;
+    PlayIDE.setFromHash(anchor);
+    jQuery("#loadpopup").hide();
+}
+
 PlayIDE.startHashInterval = function() {
-    var inst = PlayIDE;
-    setInterval(function () {
-        var anchor = document.location.hash.slice(1);
-        if (inst.currentAnchor == anchor) {
-            return;
-        }
-        inst.currentAnchor = anchor;
-        var splitted = window.location.toString().split("#");
-        if (splitted.length > 1) PlayIDE.currentFile = splitted[1];
-        PlayIDE.setFile();
-        jQuery("#loadpopup").hide();
-    }, 300);
+    if ("onhashchange" in window) {
+        window.onhashchange = PlayIDE.locationHashChanged;
+    } else {
+        setInterval(function () {
+            var anchor = document.location.hash.slice(1);
+            if (PlayIDE.currentAnchor != anchor) {
+                PlayIDE.locationHashChanged();
+            }
+        }, 300);
+    }
 }

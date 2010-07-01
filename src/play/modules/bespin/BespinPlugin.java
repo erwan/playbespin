@@ -33,6 +33,10 @@ public class BespinPlugin extends PlayPlugin {
 				response.setHeader("Location", "/bespin/public/index.html");
 				return true;
 			}
+			// -- /bespin/serverconfig.js
+			if (request.path.equals("/bespin/serverconfig.js")) {
+				return serveConfig(request, response);
+			}
 			// -- Static files (/bespin/public)
 			if (request.path.startsWith("/bespin/public/")) {
 				String path = request.path.substring("/bespin/public".length());
@@ -133,6 +137,22 @@ public class BespinPlugin extends PlayPlugin {
 		} catch (FileNotFoundException e) {
 			response.status = 404;
 			return false;
+		}
+	}
+
+	private boolean serveConfig(Request request, Response response) throws Exception {
+		response.status = 200;
+		String body = "var serverConfig = { 'rootUrl': '"
+					+ Play.applicationPath
+					+ "' }";
+		response.out.write(body.replace("\t", "    ").getBytes("utf-8"));
+		return true;
+	}
+
+	@Override
+	public void onConfigurationRead() {
+		if (!Play.configuration.contains("play.editor")) {
+			Play.configuration.put("play.editor", "/bespin/public/index.html#%s|%s");
 		}
 	}
 
