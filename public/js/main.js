@@ -4,6 +4,9 @@ var PlayIDE = {
 PlayIDE.currentFile = null;
 
 PlayIDE.init = function() {
+    bespin.editor.textChanged.add(function(newSelection) {
+        jQuery("#save-button").removeClass("disabled");
+    });
     var splitted = window.location.toString().split("#");
     if (splitted.length > 1) {
         PlayIDE.setFromHash(splitted[1]);
@@ -51,6 +54,7 @@ PlayIDE.save = function() {
     jQuery.post(
         "/bespin/save" + PlayIDE.currentFile,
         bespin.editor.value);
+    jQuery("#save-button").addClass("disabled");
 }
 
 PlayIDE.load = function() {
