@@ -21,6 +21,6 @@ bc. 00:21:45,192 INFO  ~ Module bespin is available (.../play/modules/bespin)
 
 Now open bespin in your browser at http://localhost:9000/bespin
 
-!images/bespin-browse!
+!images/browse!
 
-!images/bespin-edit!
+!images/edit!

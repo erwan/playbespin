@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Play IDE</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link id="bespin_base" href="bespin">
+        <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/bespin/BespinEmbedded.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/jtree/themes/default/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="/bespin/public/css/main.css" />
+        <link rel="shortcut icon" type="image/png" href="/bespin/public/images/favicon.png" />
+        <script src="/bespin/serverconfig.js"></script>
+        <script src="/bespin/public/js/underscore-min.js"></script>
+        <script src="/bespin/public/js/jquery-1.4.min.js"></script>
+        <script src="/bespin/public/js/jquery-ui-1.8.2.custom.min.js"></script>
+        <script src="/bespin/public/js/jquery.simplemodal-1.3.3.min.js"></script>
+        <script src="/bespin/public/jtree/jquery.tree.min.js"></script>
+        <script src="/bespin/public/js/jquery.layout.min-1.2.0.js"></script>
+        <script src="/bespin/public/bespin/BespinEmbedded.uncompressed.js"></script>
+        <script src="/bespin/public/js/main.js"></script>
+    </head>
+    <body>
+
+<div id="header" class="ui-layout-north">
+    <h1>Play IDE</h1>
+
+    <div id="filename"></div>
+
+    <div id="toolbar">
+        <a id="save-button" href="#" class="button">Save</a>
+        <a id="load-button" href="#" class="button">Load</a>
+    </div>
+</div>
+
+<div class="ui-layout-west">
+    <div id="loadfiles"></div>
+</div>
+
+<div class="ui-layout-center">
+<div id="editor"
+     class="bespin"
+     data-bespinoptions='{ "settings": { "tabstop": 4 }, "syntax": "js", "stealFocus": true }'>
+// Welcome in Play IDE.
+var thisCode = "what shows up in the editor";
+function editMe() {
+  alert("and have fun!");
+}
+</div>
+</div>
+
+
+<div id="loadpopup" style="display: none;">
+</div>
+
+<script>
+    var myLayout = null;
+
+    jQuery.noConflict(); // Bespin includes Dojo so we have to do that
+
+    function dimChanged() {
+        setTimeout(function(){
+            var up = myLayout.state.north.isClosed ? 0 : jQuery(".ui-layout-north").outerHeight();
+            jQuery("#editor").height(window.innerHeight - up - 8);
+            if (bespin && bespin.dimensionsChanged) {
+                bespin.dimensionsChanged();
+                // Dirty dirty
+                jQuery("canvas")[1].attr("width", jQuery("#editor").width());
+            }
+        }, 200);
+    }
+
+    jQuery(document).ready(function () {
+
+        myLayout = jQuery('body').layout({
+            applyDefaultStyles: true,
+            north__resizable: false,
+            onresize_end: dimChanged
+        });
+
+        dimChanged();
+
+        jQuery("#loadfiles").tree({
+            types: {
+               // all node types inherit the "default" node type
+                "default" : {
+                    draggable : false,
+                    deletable : false,
+                    renameable : false
+                },
+                "folder" : {
+                    valid_children : [ "file" ]
+                },
+                "file": {
+                    max_children : 0,
+                    icon : {
+                        image : "/bespin/public/images/file.png"
+                    }
+                }
+            },
+            data: {
+                type: "json",
+                opts: {
+                    url : "/bespin/list/"
+                }
+            },
+            callback: {
+                onload: function() {
+                    jQuery("li[rel='folder'] > a").click(function (e) {
+                        e.preventDefault();
+                    });
+                    jQuery("li[rel='file']").each(function (i) {
+                        var li = jQuery(this);
+                        li.find("a").each(function (j) {
+                            jQuery(this).attr("href", li.attr("href"));
+                       });
+                    });
+                }
+            }
+        });
+    });
+
+    window.onBespinLoad = function() {
+        var editor = document.getElementById("editor");
+        bespin = editor.bespin;
+        PlayIDE.init();
+    }
+
+    jQuery("#save-button").click(function(e) {
+        e.preventDefault();
+        if (!jQuery(this).is(".disabled"))
+            PlayIDE.save();
+    });
+
+    jQuery(window).keypress(function(event) {
+        if ((event.which == 115 && event.ctrlKey)){
+            if (!jQuery("#save-button").is(".disabled"))
+                PlayIDE.save();
+            event.preventDefault();
+        }
+    });
+
+    jQuery("#load-button").click(function(e) {
+        e.preventDefault();
+        PlayIDE.load();
+    });
+
+</script>
+
+    </body>
+
+</html>

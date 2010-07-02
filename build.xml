@@ -5,8 +5,9 @@
     <path id="project.classpath">
         <pathelement path="${play.path}/framework/classes"/>
         <fileset dir="${play.path}/framework/lib">
-            <include name="*.jar"/>                        
-        </fileset>        
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="lib/lambdaj-2.1-with-dependencies.jar"/>
     </path>
     
     <target name="build">

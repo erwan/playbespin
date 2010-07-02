@@ -2,84 +2,204 @@ package play.modules.bespin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+
 import play.Play;
 import play.PlayPlugin;
 import play.libs.IO;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 
+import ch.lambdaj.Lambda;
+import ch.lambdaj.function.convert.Converter;
+
 public class BespinPlugin extends PlayPlugin {
 
-    @Override
-    public boolean rawInvocation(Request request, Response response) {
-        try {
-            // -- /bespin
-            if(request.path.equals("/bespin")) {
-                response.status = 302;
-                response.setHeader("Location", "/public/bespin/dashboard.html");
-                return true;
-            } 
-            // -- /bespin/settings
-            if(request.path.equals("/bespin/settings/")) {
+	@Override
+	public boolean rawInvocation(Request request, Response response) {
+		try {
+			// -- /bespin
+			if (request.path.equals("/bespin") || request.path.equals("/bespin/")) {
+				response.status = 302;
+				response.setHeader("Location", "/bespin/public/index.html");
+				return true;
+			}
+			// -- /bespin/serverconfig.js
+			if (request.path.equals("/bespin/serverconfig.js")) {
+				return serveConfig(request, response);
+			}
+			// -- Static files (/bespin/public)
+			if (request.path.startsWith("/bespin/public/")) {
+				String path = request.path.substring("/bespin/public".length());
+				return servePublic(request, response, path);
+			}
+			// -- /bespin/file/at
+			if (request.path.startsWith("/bespin/file/at/")) {
+				File file = Play.getFile(request.path.substring("/bespin/file/at".length()));
+				return serveStatic(request, response, file);
+			}
+			// -- /bespin/save/
+			if (request.path.startsWith("/bespin/save/")) {
+				File file = Play.getFile(request.path.substring("/bespin/save".length()));
+				InputStream content = request.body;
+				save(content, file);
+				return true;
+			}
+			// -- bespin/list
+			if (request.path.startsWith("/bespin/list/")) {
+				String root = request.path.substring("/bespin/list".length());
+				List<File> fileList = Arrays.asList(Play.getFile(root).listFiles());
+				response.status = 200;
+				response.out.write(list(fileList).getBytes("utf-8"));
+				return true;
+			}
+			return false;
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void save(InputStream is, File target) {
+		FileOutputStream os;
+		try {
+			os = new FileOutputStream(target);
+		} catch (FileNotFoundException e) {
+			// TODO create the file
+			e.printStackTrace();
+			return;
+		}
+
+		int c;
+		try {
+			while ((c = is.read()) != -1) {
+				os.write(c);
+			}
+			is.close();
+			os.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private boolean servePublic(Request request, Response response, String path) throws Exception {
+		String fullPath = getBespinFolder().getPath() + File.separator + "public" + path;
+		boolean binary = false;
+		if (path.endsWith(".html") || path.endsWith(".htm")) {
+			response.contentType = "text/html; charset=utf8";
+		} else if (path.endsWith(".css")) {
+			response.contentType = "text/css; charset=utf8";
+		} else if (path.endsWith(".png")) {
+			response.contentType = "image/png";
+			binary = true;
+		}
+		if (binary)
+			return serveBinary(request, response, new File(fullPath));
+		else
+			return serveStatic(request, response, new File(fullPath));
+	}
+
+	private boolean serveBinary(Request request, Response response, File file) throws Exception {
+		FileInputStream is = new FileInputStream(file);
+		byte[] buffer = new byte[8092];
+		int count = 0;
+		while ((count = is.read(buffer)) > 0) {
+			response.out.write(buffer, 0, count);
+		}
+		is.close();
+		return true;
+	}
+
+	private boolean serveStatic(Request request, Response response, File file) throws Exception {
+		try {
+			if(request.method.equals("GET")) {
+				response.status = 200;
+				response.out.write(IO.readContentAsString(file).replace("\t", "    ").getBytes("utf-8"));
+			} else {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				int r = -1;
+				while((r = request.body.read()) != -1) {
+					baos.write(r);
+				}
+				IO.writeContent(new String(baos.toByteArray(), "utf-8"), file);
+			}
+			return true;
+		} catch (FileNotFoundException e) {
+			response.status = 404;
+			return false;
+		}
+	}
+
+	private boolean serveConfig(Request request, Response response) throws Exception {
 		response.status = 200;
-                response.out.write("{\"_username\": \"guillaume.bort\", \"collaborate\": \"off\", \"syntax\": \"auto\", \"autocomplete\": \"off\", \"fontsize\": \"8\", \"tabsize\": \"4\", \"keybindings\": \"emacs\"".getBytes("utf-8"));
-                return true;
-            }
-            // -- /bespin/register/userinfo
-            if(request.path.equals("/bespin/register/userinfo/")) {
-		response.status = 200;
-                response.out.write("{\"username\": \"Guillaume\"}".getBytes("utf-8"));
-                return true;
-            }            
-            // -- /bespin/file/list
-            if(request.path.startsWith("/bespin/file/list/")) {
-                String root = request.path.substring("/bespin/file/list".length());
-                List<File> fileList = Arrays.asList(Play.getFile(root).listFiles());
-		response.status = 200;
-                response.out.write(list(fileList).getBytes("utf-8"));
-                return true;
-            }
-            // -- /bespin/register/listopen
-            if(request.path.equals("/bespin/file/listopen/")) {
-		response.status = 200;
-                response.out.write("{}".getBytes("utf-8"));
-                return true;
-            }  
-            // -- /bespin/register/listopen
-            if(request.path.startsWith("/bespin/file/at/")) {
-                String file = request.path.substring("/bespin/file/al".length());
-                if(request.method.equals("GET")) {
-                    response.status = 200;
-                    response.out.write(IO.readContentAsString(Play.getFile(file)).replace("\t", "    ").getBytes("utf-8"));
-                } else {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int r = -1;
-                    while((r = request.body.read()) != -1) {
-                        baos.write(r);
-                    }
-                    IO.writeContent(new String(baos.toByteArray(), "utf-8"), Play.getFile(file));
-                }
-                return true;
-            } 
-            return false;
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    static String list(List<File> list) {
-        StringBuffer buf = new StringBuffer("[");
-        for(File file : list) {
-            if(file.isDirectory()) {
-                buf.append("{\"name\": \"" + file.getName()+"/\"},");
-            } else {
-                buf.append("{\"name\": \"" + file.getName()+"\", \"size\": " + file.length() + "},");
-            }
-        }
-        buf.append("]");
-        return buf.toString();
-    }
-    
+		String body = "var serverConfig = { 'rootUrl': '"
+					+ Play.applicationPath
+					+ "' }";
+		response.out.write(body.replace("\t", "    ").getBytes("utf-8"));
+		return true;
+	}
+
+	@Override
+	public void onConfigurationRead() {
+		if (!Play.configuration.contains("play.editor")) {
+			Play.configuration.put("play.editor", "/bespin/public/index.html#%s|%s");
+		}
+	}
+
+	private File getBespinFolder() {
+		return Play.modules.get("bespin").getRealFile();
+	}
+
+	private static String getRelativePath(File file) {
+		if (file == null || file.equals(Play.getFile(""))) {
+			return "";
+		}
+		return getRelativePath(file.getParentFile()) + "/" + file.getName();
+	}
+
+	private static String list(List<File> list) {
+
+		class FileMatcher extends TypeSafeMatcher<File> {
+			@Override
+			public void describeTo(Description arg0) {}
+
+			@Override
+			public boolean matchesSafely(File item) {
+				String name = item.getName();
+				if (name.equals(".svn")) return false;
+				if (name.equals(".bzr")) return false;
+				if (name.equals(".git")) return false;
+				return true;
+			}
+		}
+
+		class FileJsonConverter implements Converter<File, String> {
+			@Override
+			public String convert(File file) {
+				if(file.isDirectory()) {
+					return "{\"data\": \"" + file.getName() + "/\", "
+							+ "\"children\": " + BespinPlugin.list(Arrays.asList(file.listFiles())) + ","
+							+ "\"attributes\": {\"rel\": \"folder\"}"
+							+ "}";
+				} else {
+					return "{\"data\": \"" + file.getName() + "\","
+							+ "\"attributes\": {\"rel\": \"file\", \"href\": \"#" + getRelativePath(file) + "\"}"
+							+ "}";
+				}
+			}
+		}
+
+		return "[" + Lambda.join(Lambda.convert(Lambda.filter(new FileMatcher(), list), new FileJsonConverter()), ",") + "]";
+	}
+
 }
