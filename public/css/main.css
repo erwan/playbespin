@@ -1,36 +1,21 @@
 
-#main {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.ui-layout-pane {
+    background-color: #444 !important;
 }
 
-.bespin {
+.ui-layout-center {
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+#editor {
     margin: 0; padding: 0; border: 0;
-    position: fixed;
-    top: 15px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: auto !important;
-    height: auto !important;
+    margin-top: -16px;
     display: block;
 }
 
 body {
-    height: 100%;
-    margin: 0;
-    color: white;
-    background-color: black;
     font-family: Calibri, Helvetica, Arial;
-}
-
-#header {
-    padding: 0;
-    border-bottom: 1px white solid;
-    height: 30px;
 }
 
 h1 {
@@ -44,20 +29,21 @@ h1 {
 #toolbar {
     float: right;
     position: absolute;
-    top: 3px;
+    top: 10px;
     right: 20px;
     width: 200px;
 }
 
 #filename {
+    color: white;
     float: right;
     position: absolute;
-    left: 100px;
-    top: 5px;
+    left: 120px;
+    top: 10px;
 }
 
 .button {
-    background-color: white;
+    background-color: #93BEFF;
     color: black;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -69,35 +55,14 @@ h1 {
 }
 
 .button:hover {
-    background-color: #eee;
+    background-color: #DBE9FF;
 }
 
 .button.disabled {
-    background-color: #aaa;
+    background-color: #ddd;
+    color: #555;
     cursor: default;
 }
-
-#simplemodal-container {
-    background-color:#333; border:8px solid #444; padding:12px;
-}
-
-#simplemodal-container ul {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-#simplemodal-container a.modalCloseImg {
-    background:url(/bespin/public/images/x.png) no-repeat;
-    width:25px;
-    height:29px;
-    display:inline;
-    z-index:3200;
-    position:absolute;
-    top:-15px;
-    right:-18px;
-    cursor:pointer;
-}
-
 
 .tree li a, .tree li span {
     color: white !important;
