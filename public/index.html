@@ -105,6 +105,14 @@ function editMe() {
             PlayIDE.save();
     });
 
+    jQuery(window).keypress(function(event) {
+        if ((event.which == 115 && event.ctrlKey)){
+            if (!jQuery("#save-button").is(".disabled"))
+                PlayIDE.save();
+            event.preventDefault();
+        }
+    });
+
     jQuery("#load-button").click(function(e) {
         e.preventDefault();
         PlayIDE.load();
