@@ -42,6 +42,15 @@ h1 {
     top: 10px;
 }
 
+#loadfiles {
+    background-color: #444 !important;
+    color: white !important;
+}
+
+.jstree a {
+    color: white !important;
+}
+
 .button {
     background-color: #93BEFF;
     color: black;
