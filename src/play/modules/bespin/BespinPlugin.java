@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import play.Play;
+import play.Play.Mode;
 import play.PlayPlugin;
 import play.libs.IO;
 import play.mvc.Http.Request;
@@ -25,6 +26,9 @@ public class BespinPlugin extends PlayPlugin {
     @Override
     public boolean rawInvocation(Request request, Response response) {
         try {
+            if (Play.mode == Mode.PROD) {
+                return false;
+            }
             // -- /bespin
             if (request.path.equals("/bespin") || request.path.equals("/bespin/")) {
                 response.status = 302;
