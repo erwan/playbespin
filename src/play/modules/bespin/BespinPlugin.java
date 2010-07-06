@@ -7,21 +7,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-
-import play.Logger;
 import play.Play;
 import play.PlayPlugin;
 import play.libs.IO;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
-import ch.lambdaj.Lambda;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 public class BespinPlugin extends PlayPlugin {
 
@@ -60,7 +57,7 @@ public class BespinPlugin extends PlayPlugin {
                 String root = request.path.substring("/bespin/list".length());
                 List<File> fileList = Arrays.asList(Play.getFile(root).listFiles());
                 response.status = 200;
-                response.out.write(list(fileList).getBytes("utf-8"));
+                response.out.write(serialize(fileList).getBytes("utf-8"));
                 return true;
             }
             return false;
@@ -161,28 +158,13 @@ public class BespinPlugin extends PlayPlugin {
         return Play.modules.get("bespin").getRealFile();
     }
 
-    private static String list(List<File> list) {
+    public static final Type listFileType = new TypeToken<List<File>>(){}.getType();
 
-        Logger.info("List it!!!");
-
-        class FileMatcher extends TypeSafeMatcher<File> {
-            @Override
-            public void describeTo(Description arg0) {}
-
-            @Override
-            public boolean matchesSafely(File item) {
-                String name = item.getName();
-                if (name.equals(".svn")) return false;
-                if (name.equals(".bzr")) return false;
-                if (name.equals(".git")) return false;
-                return true;
-            }
-        }
-
+    private static String serialize(List<File> list) {
         GsonBuilder gson = new GsonBuilder();
-        gson.registerTypeAdapter(File.class, new FileTreeSerializer());
-        String result = gson.create().toJson(Lambda.filter(new FileMatcher(), list));
-        Logger.info(result);
+        gson.registerTypeAdapter(File.class, new FileSerializer());
+        gson.registerTypeAdapter(listFileType, new FileListSerializer());
+        String result = gson.create().toJson(list, listFileType);
         return result;
     }
 
